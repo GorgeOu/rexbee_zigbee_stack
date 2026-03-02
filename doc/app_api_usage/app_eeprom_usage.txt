@@ -1,0 +1,81 @@
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
++				app_sim_eep_assign.h				 +
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//define eeprom area in DEF_EEP_BASIC or DEF_EEP_INDEXED_BASIC
+
+#define APP_USE_SIM_EEP
+
+#ifdef DEFINEEEPTYPE
+typedef struct
+{
+	uint8_t  data1;
+	uint8_t  data2;
+	uint8_t  data3;
+	uint8_t  data4;
+	uint32_t data5;
+	uint16_t data6;
+} app_test_struct_t;
+
+typedef uint8_t app_test_array_t[12];
+
+#endif
+
+#if defined(DEFINEEEPARRAY) || defined(DEFINETOKENID)
+DEF_EEP_BASIC(APP_TEST_CHAR, uint8_t, 0x00)
+DEF_EEP_BASIC(APP_TEST_ARRAY, app_test_array_t, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12})
+DEF_EEP_BASIC(APP_TEST_STRUCT, app_test_struct_t, {1, 2, 3, 4, 0x55555555, 0x6666})
+
+DEF_EEP_INDEXED_BASIC(APP_TEST_INDEX_STRUCT,
+				      app_test_struct_t,
+				      10, //strcut list count, app_test_struct_t[10]
+				   	  {1, 2, 3, 4, 0x55555555, 0x6666})
+
+#endif
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++				   	  
++					user_app_xxx.c					 +
++													 +
++  #define  DEFINEEEPTYPE							 +
++  #include "common/app_sim_eep.h"					 +
++  #undef   DEFINEEEPTYPE							 +
++													 +
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+1. eeprom read
+
+uint8_t test_char;
+result = app_eeprom_read_data(TOKEN_APP_TEST_CHAR, 0, &test_char);
+
+app_test_array_t test_array;
+result = app_eeprom_read_data(TOKEN_APP_TEST_ARRAY, 0, &test_array[0]);
+
+app_test_struct_t test_struct;
+result = app_eeprom_read_data(TOKEN_APP_TEST_STRUCT, 0, &test_struct);
+
+
+app_test_struct_t test_index_struct;
+result = app_eeprom_read_data(TOKEN_APP_TEST_STRUCT, 0, &test_index_struct); //read index 0, in list[0]
+result = app_eeprom_read_data(TOKEN_APP_TEST_STRUCT, 8, &test_index_struct); //read index 8, in list[8]
+
+------------------------------------------------------
+2. eeprom write
+
+uint8_t test_char = 0x30;
+result = app_eeprom_write_data(TOKEN_APP_TEST_CHAR, 0, &test_char);
+
+app_test_array_t test_array = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+result = app_eeprom_write_data(TOKEN_APP_TEST_ARRAY, 0, &test_array[0]);
+
+app_test_struct_t test_struct = {1, 2, 3, 4, 11223344, 1122};
+result = app_eeprom_write_data(TOKEN_APP_TEST_STRUCT, 0, &test_struct);
+
+app_test_struct_t test_index_struct;
+result = app_eeprom_write_data(TOKEN_APP_TEST_STRUCT, 0, &test_index_struct); //read index 0, in list[0]
+result = app_eeprom_write_data(TOKEN_APP_TEST_STRUCT, 8, &test_index_struct); //read index 8, in list[8]
+
+------------------------------------------------------
+
+
+

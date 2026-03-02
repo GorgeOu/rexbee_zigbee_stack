@@ -1,0 +1,47 @@
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
++					 pin_def.h						 +
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//define pwm pin in HAL_PWM_PIN_LIST
+
+//|  port  |  pin | trigger level | pwm direction |
+// note :  pwm direction only support gpio which have dual direction pwm mode, view pwm_driver.h
+//		   same pwm way _N mode and non _N mode will interacted with each other 
+// pwm direction : 1 - first,  2 - second, other - default 1
+// e.g. PC1 support PWM1_N/PWM0, 1 - use PWM1_N, 2 use PWM0
+
+#define HAL_PWM_PIN_LIST \
+{\
+	{PORTD,  2,  HIGH_LEVEL_TRIGGER,	0xff},  /* 1  PWM */ \
+}
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
++					user_app_xxx.c					 +
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+1. set pwm frequency and duty
+������������������������������������������������������������
+plugin init()
+{
+	app_pwm_timer_init();
+	...
+}
+
+app_v2_set_pwm_freq_duty(1000, 100, index); ////freq 1000Hz, duty (100/254)%
+
+------------------------------------------------------
+
+2. pwm start
+������������������������������������������������������������
+
+app_v2_pwm_start(index);	//index in HAL_PWM_PIN_LIST
+
+------------------------------------------------------
+
+3. pwm stop
+������������������������������������������������������������
+
+app_v2_pwm_stop(index);	//index in HAL_PWM_PIN_LIST
+
+------------------------------------------------------
